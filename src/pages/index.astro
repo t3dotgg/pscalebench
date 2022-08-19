@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 
 import { connect } from "@planetscale/database";
 import { queryBuilder } from "../db/kysely";
+import type { inferAsyncReturnType } from "../utils/async";
 
 const renderedAt = new Date();
 
@@ -12,11 +13,14 @@ const dbConnection = connect({
 	password: import.meta.env.PDB_PASS,
 });
 
-const query = queryBuilder.selectFrom("Test").selectAll().compile();
+const query = queryBuilder.selectFrom("Test").selectAll();
+type QueryType = inferAsyncReturnType<typeof query.execute>;
 
-console.log("query?", query);
+const sql = query.compile().sql;
 
-const results = await dbConnection.execute(query.sql);
+const results = await dbConnection.execute(sql);
+
+const rows = results.rows as QueryType;
 
 console.log(results);
 ---

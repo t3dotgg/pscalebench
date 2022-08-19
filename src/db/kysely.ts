@@ -24,7 +24,7 @@ export const queryBuilder = new Kysely<Database>({
     createDriver() {
       return new DummyDriver();
     },
-    createIntrospector(db: Kysely<unknown>) {
+    createIntrospector(db: Kysely<Database>) {
       return new MysqlIntrospector(db);
     },
     createQueryCompiler() {
