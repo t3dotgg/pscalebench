@@ -19,9 +19,13 @@ console.log(results);
 <Layout title="Welcome to Astro.">
 	<main>
 		<h1>Loaded From PScale</h1>
-		<p class="instructions">
+
+		<div>
+			Query time: {results.time}ms
+		</div>
+		<div>
 			Number of rows: {results.rows.length}
-		</p>
+		</div>
 
 		<div>
 			Contents: {results.rows.map((r) => <div>{r.value}</div>)}
