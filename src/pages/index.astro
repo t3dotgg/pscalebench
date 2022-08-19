@@ -33,11 +33,11 @@ console.log(results);
 			Query time: {results.time}ms
 		</div>
 		<div>
-			Number of rows: {results.rows.length}
+			Number of rows: {rows.length}
 		</div>
 
 		<div>
-			Contents: {results.rows.map((r) => <div>{r.value}</div>)}
+			Contents: {rows.map((r) => <div>{r.value}</div>)}
 		</div>
 
 		<h2>Rendered at: {renderedAt.toUTCString()}</h2>
