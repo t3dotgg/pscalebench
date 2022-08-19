@@ -1,8 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Card from "../components/Card.astro";
 
 import { connect } from "@planetscale/database";
+import { queryBuilder } from "../db/kysely";
 
 const renderedAt = new Date();
 
@@ -12,7 +12,12 @@ const dbConnection = connect({
 	password: import.meta.env.PDB_PASS,
 });
 
-const results = await dbConnection.execute("SELECT * FROM Test;");
+const query = queryBuilder.selectFrom("Test").selectAll().compile();
+
+console.log("query?", query);
+
+const results = await dbConnection.execute(query.sql);
+
 console.log(results);
 ---
 

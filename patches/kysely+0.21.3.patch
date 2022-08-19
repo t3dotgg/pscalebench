@@ -1,0 +1,26 @@
+diff --git a/node_modules/kysely/dist/cjs/dialect/postgres/postgres-adapter.js b/node_modules/kysely/dist/cjs/dialect/postgres/postgres-adapter.js
+index 08ef143..301315f 100644
+--- a/node_modules/kysely/dist/cjs/dialect/postgres/postgres-adapter.js
++++ b/node_modules/kysely/dist/cjs/dialect/postgres/postgres-adapter.js
+@@ -4,7 +4,7 @@ exports.PostgresAdapter = void 0;
+ const sql_js_1 = require("../../raw-builder/sql.js");
+ const dialect_adapter_base_js_1 = require("../dialect-adapter-base.js");
+ // Random id for our transaction lock.
+-const LOCK_ID = 3853314791062309107n;
++const LOCK_ID = 3853314791062309107;
+ class PostgresAdapter extends dialect_adapter_base_js_1.DialectAdapterBase {
+     get supportsTransactionalDdl() {
+         return true;
+diff --git a/node_modules/kysely/dist/esm/dialect/postgres/postgres-adapter.js b/node_modules/kysely/dist/esm/dialect/postgres/postgres-adapter.js
+index 2596e72..c48e562 100644
+--- a/node_modules/kysely/dist/esm/dialect/postgres/postgres-adapter.js
++++ b/node_modules/kysely/dist/esm/dialect/postgres/postgres-adapter.js
+@@ -2,7 +2,7 @@
+ import { sql } from '../../raw-builder/sql.js';
+ import { DialectAdapterBase } from '../dialect-adapter-base.js';
+ // Random id for our transaction lock.
+-const LOCK_ID = 3853314791062309107n;
++const LOCK_ID = 3853314791062309107;
+ export class PostgresAdapter extends DialectAdapterBase {
+     get supportsTransactionalDdl() {
+         return true;
