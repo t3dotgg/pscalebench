@@ -1,37 +1,29 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import Layout from "../layouts/Layout.astro";
+import Card from "../components/Card.astro";
+
+import { connect } from "@planetscale/database";
+
+const dbConnection = connect({
+	host: import.meta.env.PDB_HOST,
+	username: import.meta.env.PDB_USER,
+	password: import.meta.env.PDB_PASS,
+});
+
+const results = await dbConnection.execute("SELECT * FROM Test;");
+console.log(results);
 ---
 
 <Layout title="Welcome to Astro.">
 	<main>
-		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
+		<h1>Loaded From PScale</h1>
 		<p class="instructions">
-			Check out the <code>src/pages</code> directory to get started.<br />
-			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
+			Number of rows: {results.rows.length}
 		</p>
-		<ul role="list" class="link-card-grid">
-			<Card
-				href="https://docs.astro.build/"
-				title="Documentation"
-				body="Learn how Astro works and explore the official API docs."
-			/>
-			<Card
-				href="https://astro.build/integrations/"
-				title="Integrations"
-				body="Supercharge your project with new frameworks and libraries."
-			/>
-			<Card
-				href="https://astro.build/themes/"
-				title="Themes"
-				body="Explore a galaxy of community-built starter themes."
-			/>
-			<Card
-				href="https://astro.build/chat/"
-				title="Chat"
-				body="Come say hi to our amazing Discord community. ❤️"
-			/>
-		</ul>
+
+		<div>
+			Contents: {results.rows.map((r) => <div>{r.value}</div>)}
+		</div>
 	</main>
 </Layout>
 

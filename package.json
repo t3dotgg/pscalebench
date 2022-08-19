@@ -12,6 +12,7 @@
   "devDependencies": {
     "@astrojs/tailwind": "^1.0.0",
     "@astrojs/vercel": "^1.0.0",
+    "@planetscale/database": "^1.0.1",
     "astro": "^1.0.6"
   }
 }
