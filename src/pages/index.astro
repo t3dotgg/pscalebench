@@ -21,8 +21,6 @@ const sql = query.compile().sql;
 const results = await dbConnection.execute(sql);
 
 const rows = results.rows as QueryType;
-
-console.log(results);
 ---
 
 <Layout title="Welcome to Astro.">
