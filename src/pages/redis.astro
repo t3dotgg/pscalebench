@@ -1,0 +1,67 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const renderedAt = new Date();
+import { Redis } from "@upstash/redis";
+
+const queryStart = new Date();
+const redis = new Redis({
+	url: import.meta.env.UPSTASH_REDIS_REST_URL!,
+	token: import.meta.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+const data = await redis.get("count");
+
+const queryTime = new Date().valueOf() - queryStart.valueOf();
+---
+
+<Layout title="Redis Edge Fetching Perf Test">
+	<main>
+		<h1>Loaded From Upstash/Redis, using Astro on Vercel's Edge</h1>
+
+		<div>
+			Query time: {queryTime}ms
+		</div>
+		<div>
+			Number of rows: {data}
+		</div>
+
+		<div>
+			Contents: {data}
+		</div>
+
+		<h2>Rendered at: {renderedAt.toUTCString()}</h2>
+		<h2>
+			<span
+				>Full request to render time (according to Theo): <span id="overrideme"
+				></span>ms
+			</span>
+		</h2>
+
+		<script>
+			const currentTime = new Date();
+			// round trip time
+			const fullTime =
+				currentTime.valueOf() - window.performance.timing.requestStart;
+			document.getElementById("overrideme")!.innerHTML = fullTime.toString();
+			console.log("THEO REPORTS", fullTime);
+			const times =
+				JSON.parse(
+					localStorage.getItem("astro-edge-redis-times-store") ?? "null"
+				) ?? [];
+			times.push(fullTime);
+			localStorage.setItem(
+				"astro-edge-redis-times-store",
+				JSON.stringify(times)
+			);
+			console.table(times);
+		</script>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin: auto;
+		padding: 1em;
+	}
+</style>
