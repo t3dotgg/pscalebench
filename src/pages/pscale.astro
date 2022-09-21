@@ -1,30 +1,25 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
-import { connect } from "@planetscale/database";
 import { queryBuilder } from "../db/kysely";
 
 const renderedAt = new Date();
 
-const dbConnection = connect({
-  host: import.meta.env.PDB_HOST,
-  username: import.meta.env.PDB_USER,
-  password: import.meta.env.PDB_PASS,
+const { count } = queryBuilder.fn;
+const res = await queryBuilder.transaction().execute(async (trx) => {
+  const rowCount = trx
+    .selectFrom("Test")
+    .select(count<number>("value").as("count"))
+    .execute();
+
+  await trx
+    .insertInto("Test")
+    .values({ value: Math.random().toString() })
+    .execute();
+
+  return await rowCount;
 });
 
-const { count } = queryBuilder.fn;
-
-const rowCount = await queryBuilder
-  .selectFrom("Test")
-  .select(count<number>("value").as("count"))
-  .execute();
-
-const insert = await queryBuilder
-  .insertInto("Test")
-  .values({ value: Math.random().toString() })
-  .execute();
-
-console.log(rowCount, insert);
+console.log(res);
 ---
 
 <Layout title="PScale Edge Fetching Perf Test">
@@ -35,7 +30,7 @@ console.log(rowCount, insert);
       <!-- Query time: {results.time}ms -->
     </div>
     <div>
-      Number of rows: {rowCount[0].count}
+      Number of times this page has been loaded: {res[0].count}
     </div>
 
     <h2>Rendered at: {renderedAt.toUTCString()}</h2>
