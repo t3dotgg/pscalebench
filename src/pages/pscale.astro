@@ -1,79 +1,76 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
-import { connect } from "@planetscale/database";
 import { queryBuilder } from "../db/kysely";
-import type { inferAsyncReturnType } from "../utils/async";
 
 const renderedAt = new Date();
 
-const dbConnection = connect({
-	host: import.meta.env.PDB_HOST,
-	username: import.meta.env.PDB_USER,
-	password: import.meta.env.PDB_PASS,
+const { count } = queryBuilder.fn;
+const res = await queryBuilder.transaction().execute(async (trx) => {
+  const rowCount = trx
+    .selectFrom("Test")
+    .select(count<number>("value").as("count"))
+    .execute();
+
+  await trx
+    .insertInto("Test")
+    .values({ value: Math.random().toString() })
+    .execute();
+
+  return await rowCount;
 });
 
-const query = queryBuilder.selectFrom("Test").selectAll();
-type QueryType = inferAsyncReturnType<typeof query.execute>;
+const queryTime = new Date().valueOf() - renderedAt.valueOf();
 
-const sql = query.compile().sql;
-
-const results = await dbConnection.execute(sql);
-
-const rows = results.rows as QueryType;
+console.log(res);
 ---
 
 <Layout title="PScale Edge Fetching Perf Test">
-	<main>
-		<h1>Loaded From PScale, using Astro on Vercel's Edge</h1>
+  <main>
+    <h1>Loaded From PScale, using Astro on Vercel's Edge</h1>
 
-		<div>
-			Query time: {results.time}ms
-		</div>
-		<div>
-			Number of rows: {rows.length}
-		</div>
+    <div>
+      Query time: {queryTime}ms
+    </div>
+    <div>
+      Number of times this page has been loaded: {res[0].count}
+    </div>
 
-		<div>
-			Contents: {rows.map((r) => <div>{r.value}</div>)}
-		</div>
+    <h2>Rendered at: {renderedAt.toUTCString()}</h2>
+    <h2>
+      <span
+        >Full request to render time (according to Theo): <span id="overrideme"
+        ></span>ms
+      </span>
+    </h2>
 
-		<h2>Rendered at: {renderedAt.toUTCString()}</h2>
-		<h2>
-			<span
-				>Full request to render time (according to Theo): <span id="overrideme"
-				></span>ms
-			</span>
-		</h2>
-
-		<script>
-			const currentTime = new Date();
-			// round trip time
-			const fullTime =
-				currentTime.valueOf() - window.performance.timing.requestStart;
-			document.getElementById("overrideme")!.innerHTML = fullTime.toString();
-			console.log("THEO REPORTS", fullTime);
-			const times =
-				JSON.parse(
-					localStorage.getItem("astro-edge-pscale-times-store") ?? "null"
-				) ?? [];
-			times.push(fullTime);
-			localStorage.setItem(
-				"astro-edge-pscale-times-store",
-				JSON.stringify(times)
-			);
-			console.table(times);
-		</script>
-	</main>
+    <script>
+      const currentTime = new Date();
+      // round trip time
+      const fullTime =
+        currentTime.valueOf() - window.performance.timing.requestStart;
+      document.getElementById("overrideme")!.innerHTML = fullTime.toString();
+      console.log("THEO REPORTS", fullTime);
+      const times =
+        JSON.parse(
+          localStorage.getItem("astro-edge-pscale-times-store") ?? "null"
+        ) ?? [];
+      times.push(fullTime);
+      localStorage.setItem(
+        "astro-edge-pscale-times-store",
+        JSON.stringify(times)
+      );
+      console.table(times);
+    </script>
+  </main>
 </Layout>
 
 <style>
-	h1 {
-		margin: 2rem 0;
-	}
+  h1 {
+    margin: 2rem 0;
+  }
 
-	main {
-		margin: auto;
-		padding: 1em;
-	}
+  main {
+    margin: auto;
+    padding: 1em;
+  }
 </style>
