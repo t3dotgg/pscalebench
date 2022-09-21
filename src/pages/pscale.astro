@@ -12,14 +12,19 @@ const dbConnection = connect({
   password: import.meta.env.PDB_PASS,
 });
 
-const rows = await queryBuilder.selectFrom("Test").selectAll().execute();
+const { count } = queryBuilder.fn;
+
+const rowCount = await queryBuilder
+  .selectFrom("Test")
+  .select(count<number>("value").as("count"))
+  .execute();
 
 const insert = await queryBuilder
   .insertInto("Test")
   .values({ value: Math.random().toString() })
   .execute();
 
-console.log(rows, insert);
+console.log(rowCount, insert);
 ---
 
 <Layout title="PScale Edge Fetching Perf Test">
@@ -30,11 +35,7 @@ console.log(rows, insert);
       <!-- Query time: {results.time}ms -->
     </div>
     <div>
-      Number of rows: {rows.length}
-    </div>
-
-    <div>
-      Contents: {rows.map((r) => <div>{r.value}</div>)}
+      Number of rows: {rowCount[0].count}
     </div>
 
     <h2>Rendered at: {renderedAt.toUTCString()}</h2>
