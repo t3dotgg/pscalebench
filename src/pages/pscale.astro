@@ -19,6 +19,8 @@ const res = await queryBuilder.transaction().execute(async (trx) => {
   return await rowCount;
 });
 
+const queryTime = new Date().valueOf() - renderedAt.valueOf();
+
 console.log(res);
 ---
 
@@ -27,7 +29,7 @@ console.log(res);
     <h1>Loaded From PScale, using Astro on Vercel's Edge</h1>
 
     <div>
-      <!-- Query time: {results.time}ms -->
+      Query time: {queryTime}ms
     </div>
     <div>
       Number of times this page has been loaded: {res[0].count}
