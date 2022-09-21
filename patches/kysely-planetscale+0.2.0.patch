@@ -1,0 +1,157 @@
+diff --git a/node_modules/kysely-planetscale/dist/index.js b/node_modules/kysely-planetscale/dist/index.js
+deleted file mode 100644
+index 8e579b9..0000000
+--- a/node_modules/kysely-planetscale/dist/index.js
++++ /dev/null
+@@ -1,151 +0,0 @@
+-"use strict";
+-var __defProp = Object.defineProperty;
+-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+-var __getOwnPropNames = Object.getOwnPropertyNames;
+-var __hasOwnProp = Object.prototype.hasOwnProperty;
+-var __export = (target, all) => {
+-  for (var name in all)
+-    __defProp(target, name, { get: all[name], enumerable: true });
+-};
+-var __copyProps = (to, from, except, desc) => {
+-  if (from && typeof from === "object" || typeof from === "function") {
+-    for (let key of __getOwnPropNames(from))
+-      if (!__hasOwnProp.call(to, key) && key !== except)
+-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+-  }
+-  return to;
+-};
+-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+-var __accessCheck = (obj, member, msg) => {
+-  if (!member.has(obj))
+-    throw TypeError("Cannot " + msg);
+-};
+-var __privateGet = (obj, member, getter) => {
+-  __accessCheck(obj, member, "read from private field");
+-  return getter ? getter.call(obj) : member.get(obj);
+-};
+-var __privateAdd = (obj, member, value) => {
+-  if (member.has(obj))
+-    throw TypeError("Cannot add the same private member more than once");
+-  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+-};
+-var __privateSet = (obj, member, value, setter) => {
+-  __accessCheck(obj, member, "write to private field");
+-  setter ? setter.call(obj, value) : member.set(obj, value);
+-  return value;
+-};
+-
+-// src/index.ts
+-var src_exports = {};
+-__export(src_exports, {
+-  PlanetScaleDialect: () => PlanetScaleDialect,
+-  inflateDates: () => inflateDates
+-});
+-module.exports = __toCommonJS(src_exports);
+-var import_database = require("@planetscale/database");
+-var import_date_fns = require("date-fns");
+-var import_kysely = require("kysely");
+-var _config;
+-var PlanetScaleDialect = class {
+-  constructor(config) {
+-    __privateAdd(this, _config, void 0);
+-    __privateSet(this, _config, config);
+-  }
+-  createAdapter() {
+-    return new import_kysely.MysqlAdapter();
+-  }
+-  createDriver() {
+-    return new PlanetScaleDriver(__privateGet(this, _config));
+-  }
+-  createQueryCompiler() {
+-    return new import_kysely.MysqlQueryCompiler();
+-  }
+-  createIntrospector(db) {
+-    return new import_kysely.MysqlIntrospector(db);
+-  }
+-};
+-_config = new WeakMap();
+-var _config2;
+-var PlanetScaleDriver = class {
+-  constructor(config) {
+-    __privateAdd(this, _config2, void 0);
+-    __privateSet(this, _config2, config);
+-  }
+-  async init() {
+-  }
+-  async acquireConnection() {
+-    return new PlanetScaleConnection(__privateGet(this, _config2));
+-  }
+-  async beginTransaction(conn) {
+-    return await conn.beginTransaction();
+-  }
+-  async commitTransaction(conn) {
+-    return await conn.commitTransaction();
+-  }
+-  async rollbackTransaction(conn) {
+-    return await conn.rollbackTransaction();
+-  }
+-  async releaseConnection(_conn2) {
+-  }
+-  async destroy() {
+-  }
+-};
+-_config2 = new WeakMap();
+-var _config3, _conn, _transactionClient;
+-var _PlanetScaleConnection = class {
+-  constructor(config) {
+-    __privateAdd(this, _config3, void 0);
+-    __privateAdd(this, _conn, void 0);
+-    __privateAdd(this, _transactionClient, void 0);
+-    __privateSet(this, _config3, config);
+-    __privateSet(this, _conn, (0, import_database.connect)({ cast: inflateDates, ...config }));
+-  }
+-  async executeQuery(compiledQuery) {
+-    if (__privateGet(this, _transactionClient))
+-      return __privateGet(this, _transactionClient).executeQuery(compiledQuery);
+-    const parameters = __privateGet(this, _config3).format ? compiledQuery.parameters : compiledQuery.parameters.map((param) => param instanceof Date ? formatDate(param) : param);
+-    const results = await __privateGet(this, _conn).execute(compiledQuery.sql, parameters);
+-    return {
+-      rows: results.rows,
+-      numUpdatedOrDeletedRows: results.rowsAffected == null ? void 0 : BigInt(results.rowsAffected)
+-    };
+-  }
+-  async beginTransaction() {
+-    __privateSet(this, _transactionClient, __privateGet(this, _transactionClient) ?? new _PlanetScaleConnection(__privateGet(this, _config3)));
+-    __privateGet(__privateGet(this, _transactionClient), _conn).execute("BEGIN");
+-  }
+-  async commitTransaction() {
+-    if (!__privateGet(this, _transactionClient))
+-      throw new Error("No transaction to commit");
+-    __privateGet(__privateGet(this, _transactionClient), _conn).execute("COMMIT");
+-    __privateSet(this, _transactionClient, void 0);
+-  }
+-  async rollbackTransaction() {
+-    if (!__privateGet(this, _transactionClient))
+-      throw new Error("No transaction to rollback");
+-    __privateGet(__privateGet(this, _transactionClient), _conn).execute("ROLLBACK");
+-    __privateSet(this, _transactionClient, void 0);
+-  }
+-  async *streamQuery(_compiledQuery, _chunkSize) {
+-    throw new Error("PlanetScale Serverless Driver does not support streaming");
+-  }
+-};
+-var PlanetScaleConnection = _PlanetScaleConnection;
+-_config3 = new WeakMap();
+-_conn = new WeakMap();
+-_transactionClient = new WeakMap();
+-function inflateDates(field, value) {
+-  if (field.type === "DATETIME" && value)
+-    return (0, import_date_fns.parseJSON)(value);
+-  if (field.type === "TIMESTAMP" && value)
+-    return (0, import_date_fns.parseJSON)(value);
+-  return (0, import_database.cast)(field, value);
+-}
+-function formatDate(date) {
+-  return date.toISOString().replace(/[TZ]/g, " ").trim();
+-}
+-// Annotate the CommonJS export names for ESM import in node:
+-0 && (module.exports = {
+-  PlanetScaleDialect,
+-  inflateDates
+-});

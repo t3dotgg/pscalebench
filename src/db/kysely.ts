@@ -1,11 +1,5 @@
-import {
-  DummyDriver,
-  Generated,
-  Kysely,
-  MysqlAdapter,
-  MysqlIntrospector,
-  MysqlQueryCompiler,
-} from "kysely";
+import { Generated, Kysely } from "kysely";
+import { PlanetScaleDialect } from "kysely-planetscale";
 
 interface TestTable {
   id: Generated<number>;
@@ -17,18 +11,9 @@ interface Database {
 }
 
 export const queryBuilder = new Kysely<Database>({
-  dialect: {
-    createAdapter() {
-      return new MysqlAdapter();
-    },
-    createDriver() {
-      return new DummyDriver();
-    },
-    createIntrospector(db: Kysely<Database>) {
-      return new MysqlIntrospector(db);
-    },
-    createQueryCompiler() {
-      return new MysqlQueryCompiler();
-    },
-  },
+  dialect: new PlanetScaleDialect({
+    host: import.meta.env.PDB_HOST,
+    username: import.meta.env.PDB_USER,
+    password: import.meta.env.PDB_PASS,
+  }),
 });
