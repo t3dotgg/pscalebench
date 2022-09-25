@@ -9,11 +9,4 @@ export default defineConfig({
   integrations: [tailwind()],
   output: "server",
   adapter: vercel(),
-  vite: {
-    resolve: {
-      alias: {
-        "kysely-planetscale": "/node_modules/kysely-planetscale/dist/index.mjs",
-      },
-    },
-  },
 });
